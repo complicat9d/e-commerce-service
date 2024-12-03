@@ -15,6 +15,7 @@ pydantic-settings = "*"
 [dev-packages]
 pytest = "*"
 black = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.12"

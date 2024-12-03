@@ -26,13 +26,18 @@ def get_engine():
         db_url,
         echo=settings.DEBUG_ENGINE,
         max_overflow=25,
+        pool_size=10,
+        pool_timeout=30,
     )
     return _engine
 
 
 async def _get_async_session() -> AsyncSession:
     async with AsyncSession(get_engine()) as session, session.begin():
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 async_session = asynccontextmanager(_get_async_session)

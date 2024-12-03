@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     TOKEN: str
     BOT_NAME: str
 
+    CHANNEL_SUBSCRIPTION_LINK: str = "https://t.me/dlgmdlgkdlgkdgl"
+    CHANNEL_SUBSCRIPTION_CHECK: str = "https://t.me/dlgmdlgkdlgkdgl"
+    GROUP_SUBSCRIPTION_LINK: str = "https://t.me/dkgkldkgldgkdg"
+    GROUP_SUBSCRIPTION_CHECK: str = "-1002494342292"  # chat_id: 2494342292
+
     DEBUG_ENGINE: bool = False
 
 
