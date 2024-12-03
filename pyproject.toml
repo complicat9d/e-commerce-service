@@ -1,0 +1,16 @@
+[tool.black]
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | data
+  | .venv
+  | migrations
+)
+'''
+
+[tool.isort]
+profile = "black"
+py_version = 312
+skip_gitignore = true

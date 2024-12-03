@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 bot/main.py
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=1000"
+    networks:
+      - app-network
+
+  alembic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: alembic upgrade head
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
