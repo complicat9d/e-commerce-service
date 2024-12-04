@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e2588b844367
+Revision ID: aa3876b4783a
 Revises: 
-Create Date: 2024-12-03 11:31:04.305837
+Create Date: 2024-12-04 19:16:56.285784
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e2588b844367'
+revision: str = 'aa3876b4783a'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -23,7 +23,6 @@ def upgrade() -> None:
     op.create_table('category',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('products_amount', sa.Integer(), server_default='0', nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user',
@@ -46,14 +45,17 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('cart',
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.BigInteger(), nullable=False),
     sa.Column('product_id', sa.Integer(), nullable=False),
+    sa.Column('product_name', sa.String(), nullable=False),
     sa.Column('amount', sa.Integer(), nullable=False),
     sa.Column('cost', sa.Float(), nullable=False),
-    sa.Column('address', sa.String(), nullable=False),
+    sa.Column('address', sa.String(), nullable=True),
+    sa.Column('is_being_delivered', sa.Boolean(), server_default='False', nullable=True),
     sa.ForeignKeyConstraint(['product_id'], ['product.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('user_id', 'product_id')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 

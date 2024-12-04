@@ -19,7 +19,12 @@ async def get_category_by_id(
 async def get_all_categories(
     session: AsyncSession, page: int = 0, per_page: int = 10
 ) -> Optional[List[CategorySchema]]:
-    q = sa.select(m.Category.__table__).offset(page * per_page).limit(per_page)
+    q = (
+        sa.select(m.Category.__table__)
+        .offset(page * per_page)
+        .limit(per_page)
+        .order_by(m.Category.id.asc())
+    )
     entities = (await session.execute(q)).mappings().all()
 
     if entities:

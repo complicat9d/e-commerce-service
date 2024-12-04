@@ -2,23 +2,27 @@ import asyncio
 import logging
 from logging import getLogger
 from aiogram import Bot, Dispatcher
-
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from bot.routes.start import start_router
 from bot.routes.product_selection import category_slider
+from bot.routes.cart import cart_router
 from config import settings
 
 log = getLogger("mitm")
 
 
 def get_bot() -> Bot:
-    return Bot(token=settings.TOKEN)
+    return Bot(
+        token=settings.TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN),
+    )
 
 
 async def main():
     dp = Dispatcher()
-    dp.include_router(start_router)
-    dp.include_router(category_slider)
+    dp.include_routers(start_router, category_slider, cart_router)
 
     log.info("Starting bot...")
 

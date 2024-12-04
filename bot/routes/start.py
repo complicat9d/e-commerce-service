@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.filters import Command
+from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, User
 
 from bot.markup import get_index_inline_keyboard, MyCallback
@@ -55,7 +55,7 @@ async def get_subscription_status(user: User, bot: Bot):
     return response_message, keyboard
 
 
-@start_router.message(Command("start"))
+@start_router.message(CommandStart())
 async def main_menu(message: Message, bot: Bot):
     user = message.from_user
     response_message, keyboard = await get_subscription_status(user, bot)

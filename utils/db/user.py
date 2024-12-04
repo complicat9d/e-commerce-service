@@ -15,7 +15,7 @@ async def get_user_by_id(session: AsyncSession, user_id: int) -> Optional[UserSc
 
 
 async def get_all_users(session: AsyncSession) -> Optional[List[UserSchema]]:
-    q = sa.select(m.User.__table__)
+    q = sa.select(m.User.__table__).order_by(m.User.id.asc())
     entities = (await session.execute(q)).mappings().all()
 
     if entities:

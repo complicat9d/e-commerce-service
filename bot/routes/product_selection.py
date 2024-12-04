@@ -106,7 +106,9 @@ async def handle_category_selection(
     category_id = int(callback_query.data.split("_")[-1])
     logger.info("'category_id': {}; 'page': {}".format(category_id, page))
     async with async_session() as session:
-        products = await get_all_products_by_category(session, category_id)
+        products = await get_all_products_by_category(
+            session, category_id, page, per_page
+        )
         total_products = await count_products(session)
 
     if products:
@@ -142,7 +144,9 @@ async def handle_product_page_navigation(
         "'category_id': {}; 'page': {}; action: {}".format(category_id, page, action)
     )
     async with async_session() as session:
-        products = await get_all_products_by_category(session, category_id)
+        products = await get_all_products_by_category(
+            session, category_id, page, per_page
+        )
         total_products = await count_products(session)
 
     if not products:
@@ -193,7 +197,9 @@ async def back_to_category(
     category_id = int(callback_query.data.split("_")[-1])
 
     async with async_session() as session:
-        products = await get_all_products_by_category(session, category_id)
+        products = await get_all_products_by_category(
+            session, category_id, page, per_page
+        )
         total_products = await count_products(session)
 
     amount_of_pages = (total_products + per_page - 1) // per_page
@@ -257,7 +263,12 @@ async def handle_quantity_input(message: Message, state: FSMContext, bot: Bot):
             return
 
         cart_item = CartCreateSchema(
-            user_id=user_id, product_id=product_id, amount=amount
+            user_id=user_id,
+            product_id=product_id,
+            product_name=product.name,
+            amount=amount,
+            cost=product.cost,
+            product_amount=product.amount,
         )
         try:
             await create_cart_item(session, cart_item)

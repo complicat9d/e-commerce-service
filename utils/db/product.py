@@ -31,6 +31,7 @@ async def get_all_products_by_category(
         sa.select(m.Product.__table__)
         .offset(page * per_page)
         .limit(per_page)
+        .order_by(m.Product.id.asc())
         .where(sa.and_(m.Product.category_id == category_id, m.Product.amount > 0))
     )
     entities = (await session.execute(q)).mappings().all()
@@ -40,7 +41,7 @@ async def get_all_products_by_category(
 
 
 async def count_products(session: AsyncSession) -> int:
-    q = sa.select(sa.func.count(m.Product.id))
+    q = sa.select(sa.func.count(m.Product.id)).where(m.Product.amount > 0)
     return (await session.execute(q)).scalar()
 
 
