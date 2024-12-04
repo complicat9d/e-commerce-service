@@ -34,10 +34,7 @@ def get_engine():
 
 async def _get_async_session() -> AsyncSession:
     async with AsyncSession(get_engine()) as session, session.begin():
-        try:
-            yield session
-        finally:
-            await session.close()
+        yield session
 
 
 async_session = asynccontextmanager(_get_async_session)

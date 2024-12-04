@@ -38,6 +38,29 @@ def get_back_to_category(category_id: int) -> InlineKeyboardMarkup:
     )
 
 
+def get_product_menu(category_id: int, product_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛒 Добавить в корзину",
+                    callback_data=MyCallback(
+                        action="add_to_cart_{}".format(product_id)
+                    ).pack(),
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data=MyCallback(
+                        action="category_{}".format(category_id)
+                    ).pack(),
+                )
+            ],
+        ]
+    )
+
+
 def get_back_to_catalog() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -86,7 +109,7 @@ def get_category_slider(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=f"{i}. {category.name} ({category.products_amount} products)",
+                    text=f"{i}. {category.name}",
                     callback_data=MyCallback(action=f"category_{category.id}").pack(),
                 )
             ]

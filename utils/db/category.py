@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 
 import db.models as m
-from schemas.category import CategorySchema, CategoryUpdateSchema
+from schemas.category import CategorySchema
 
 
 async def get_category_by_id(
@@ -42,33 +42,12 @@ async def create_category(session: AsyncSession, name: str):
     await session.execute(q)
 
 
-async def update_category(session: AsyncSession, schema: CategoryUpdateSchema):
-    q = sa.select(m.Category.name).where(m.Category.name == schema.name)
+async def delete_category(session: AsyncSession, category_id: int):
+    q = sa.select(m.Category.name).where(m.Category.id == category_id)
     exists = (await session.execute(q)).scalar()
 
     if not exists:
-        raise ValueError(f"Category with name {schema.name} not found.")
+        raise ValueError(f"Category with id {category_id} not found.")
 
-    q = (
-        sa.update(m.Category)
-        .where(m.Category.name == schema.name)
-        .values(
-            {
-                m.Category.name: schema.name,
-                m.Category.products_amount: m.Category.products_amount
-                + schema.products_amount,
-            }
-        )
-    )
-    await session.execute(q)
-
-
-async def delete_category(session: AsyncSession, name: str):
-    q = sa.select(m.Category.name).where(m.Category.name == name)
-    exists = (await session.execute(q)).scalar()
-
-    if not exists:
-        raise ValueError(f"Category with name {name} not found.")
-
-    q = sa.delete(m.Category).where(m.Category.name == name)
+    q = sa.delete(m.Category).where(m.Category.id == category_id)
     await session.execute(q)

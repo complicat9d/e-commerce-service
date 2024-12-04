@@ -1,11 +1,16 @@
-from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram import Router, F, Bot
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message
+from aiogram.filters.state import State, StatesGroup, StateFilter
+
+
 from bot.markup import (
     MyCallback,
     get_category_slider,
     get_product_slider,
     get_back_to_category,
     get_back_to_catalog,
+    get_product_menu,
     get_back_to_main_menu_keyboard,
 )
 from db.session import async_session
@@ -15,7 +20,15 @@ from utils.db.product import (
     get_product_by_id,
     count_products,
 )
+from utils.db.cart import create_cart_item
 from utils.log import logger
+from schemas.cart import CartCreateSchema
+from schemas.exc import InsufficientStockException
+
+
+class CartState(StatesGroup):
+    waiting_for_quantity = State()
+
 
 category_slider = Router()
 
@@ -149,7 +162,9 @@ async def handle_product_page_navigation(
         category_id=category_id,
     )
 
-    await callback_query.message.edit_text("Выберите продукт:", reply_markup=keyboard)
+    await callback_query.message.edit_text(
+        "Категория выбрана. Выберите продукт:", reply_markup=keyboard
+    )
 
 
 @category_slider.callback_query(MyCallback.filter(F.action.startswith("product_")))
@@ -162,7 +177,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
     if product:
         await callback_query.message.edit_text(
             text=f"Вы выбрали продукт: {product.name}\nОписание: {product.description}\nЦена: {product.cost}₽",
-            reply_markup=get_back_to_category(product.category_id),
+            reply_markup=get_product_menu(product.category_id, product_id),
         )
     else:
         await callback_query.message.edit_text(
@@ -175,7 +190,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
 async def back_to_category(
     callback_query: CallbackQuery, page: int = 0, per_page: int = 5
 ):
-    category_id = int(callback_query.message.text.split(" ")[-1])
+    category_id = int(callback_query.data.split("_")[-1])
 
     async with async_session() as session:
         products = await get_all_products_by_category(session, category_id)
@@ -194,3 +209,75 @@ async def back_to_category(
         text=f"Выберите продукт в категории:",
         reply_markup=keyboard,
     )
+
+
+@category_slider.callback_query(MyCallback.filter(F.action.startswith("add_to_cart_")))
+async def add_to_cart_handler(callback_query: CallbackQuery, state: FSMContext):
+    product_id = int(callback_query.data.split("_")[-1])
+
+    await state.update_data(product_id=product_id)
+
+    message = await callback_query.message.edit_text(
+        "Введите количество товара, которое вы хотите добавить в корзину:"
+    )
+    await state.update_data(last_message_id=message.message_id)
+    await state.set_state(CartState.waiting_for_quantity)
+
+
+@category_slider.message(StateFilter(CartState.waiting_for_quantity))
+async def handle_quantity_input(message: Message, state: FSMContext, bot: Bot):
+    user_id = message.from_user.id
+    amount_str = message.text.strip()
+
+    user_data = await state.get_data()
+    product_id = user_data.get("product_id")
+    last_message_id = user_data.get("last_message_id")
+
+    if last_message_id:
+        await bot.delete_message(chat_id=user_id, message_id=last_message_id)
+
+    if not amount_str.isdigit() or int(amount_str) <= 0:
+        response_message = await message.reply(
+            "Пожалуйста, введите корректное количество (целое число больше 0)."
+        )
+        await state.update_data(last_message_id=response_message.message_id)
+        return
+
+    amount = int(amount_str)
+
+    async with async_session() as session:
+        product = await get_product_by_id(session, product_id)
+
+        if not product:
+            response_message = await message.reply(
+                "Продукт не найден. Попробуйте снова."
+            )
+            await state.update_data(last_message_id=response_message.message_id)
+            await state.clear()
+            return
+
+        cart_item = CartCreateSchema(
+            user_id=user_id, product_id=product_id, amount=amount
+        )
+        try:
+            await create_cart_item(session, cart_item)
+        except InsufficientStockException:
+            response_message = await message.reply(
+                f"Извините, в наличии только {product.amount} единиц этого товара."
+            )
+            await state.update_data(last_message_id=response_message.message_id)
+            return
+
+    confirmation_message = await bot.send_message(
+        chat_id=user_id,
+        text=(
+            f"Товар '{product.name}' добавлен в вашу корзину. "
+            f"Количество: {amount}, Общая стоимость: {amount * product.cost}₽. "
+            "Перейдите в корзину, чтобы продолжить."
+        ),
+        reply_markup=get_back_to_main_menu_keyboard(),
+    )
+
+    await state.update_data(last_message_id=confirmation_message.message_id)
+
+    await state.clear()

@@ -14,6 +14,6 @@ class Cart(Base):
     )
     amount = sa.Column(sa.Integer, nullable=False)
     cost = sa.Column(sa.Float, nullable=False)
-    address = sa.Column(sa.String, nullable=False)
+    address = sa.Column(sa.String, nullable=True)
 
     __table_args__ = (sa.PrimaryKeyConstraint(user_id, product_id),)

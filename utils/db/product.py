@@ -31,7 +31,7 @@ async def get_all_products_by_category(
         sa.select(m.Product.__table__)
         .offset(page * per_page)
         .limit(per_page)
-        .where(m.Product.category_id == category_id)
+        .where(sa.and_(m.Product.category_id == category_id, m.Product.amount > 0))
     )
     entities = (await session.execute(q)).mappings().all()
 
