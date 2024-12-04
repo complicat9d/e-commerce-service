@@ -5,6 +5,7 @@ from typing import List
 from schemas.category import CategorySchema
 from schemas.product import ProductSchema
 from schemas.cart import CartSchema
+from schemas.faq import FAQSchema
 
 
 class MyCallback(CallbackData, prefix="action"):
@@ -223,8 +224,8 @@ def get_product_slider(
 
 
 def get_cart_slider(
-    cart_items: List[CartSchema],  # List of items in the cart
-    page: int,  # Current page
+    cart_items: List[CartSchema],
+    page: int,
     total_pages: int,
     per_page: int,
 ) -> InlineKeyboardMarkup:
@@ -317,7 +318,78 @@ def get_back_to_cart_address(product_id: int) -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="🔙 Назад",
-                    callback_data=MyCallback(action=f"cart_address_{product_id}").pack()
+                    callback_data=MyCallback(
+                        action=f"cart_address_{product_id}"
+                    ).pack(),
+                )
+            ]
+        ]
+    )
+
+
+def get_faq_slider(
+    faqs: List[FAQSchema], page: int, total_pages: int, per_page: int
+) -> InlineKeyboardMarkup:
+    keyboard = []
+
+    # Add FAQ titles to the keyboard
+    start_index = page * per_page
+    for i, faq in enumerate(faqs, start=1 + start_index):
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{i}. {faq.title}",
+                    callback_data=MyCallback(action=f"faq_item_{faq.id}").pack(),
+                )
+            ]
+        )
+
+    # Add pagination buttons
+    slider = []
+    if page > 0:
+        slider.append(
+            InlineKeyboardButton(
+                text="<", callback_data=MyCallback(action=f"faq_page_{page - 1}").pack()
+            )
+        )
+    if total_pages > 1:
+        slider.append(
+            InlineKeyboardButton(
+                text=f"{page + 1} / {total_pages}",
+                callback_data=MyCallback(action=f"faq_page_{page}").pack(),
+            )
+        )
+    if page < total_pages - 1:
+        slider.append(
+            InlineKeyboardButton(
+                text=">", callback_data=MyCallback(action=f"faq_page_{page + 1}").pack()
+            )
+        )
+
+    keyboard.append(slider)
+
+    # Back button
+    keyboard.append(
+        [
+            InlineKeyboardButton(
+                text="🔙 Назад",
+                callback_data=MyCallback(action="back_to_main_menu").pack(),
+            )
+        ]
+    )
+
+    return InlineKeyboardMarkup(
+        row_width=1, inline_keyboard=[button for button in keyboard]
+    )
+
+
+def get_back_to_faq() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔙 Назад",
+                    callback_data=MyCallback(action="faq").pack(),
                 )
             ]
         ]

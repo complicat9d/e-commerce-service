@@ -20,7 +20,7 @@ async def get_subscription_status(user: User, bot: Bot):
     )
 
     if group_sub_check and channel_sub_check:
-        response_message = "Welcome back! This is a bot with product catalogues, choose one of the following options:"
+        response_message = "Добро пожаловать! Это бот с каталогами товаров, выберите один из следующих вариантов:"
         keyboard = get_index_inline_keyboard()
         async with async_session() as session:
             await create_or_update_user(
@@ -33,22 +33,22 @@ async def get_subscription_status(user: User, bot: Bot):
             )
     elif group_sub_check and not channel_sub_check:
         response_message = (
-            "⚠️ You are subscribed to the group, but you need to subscribe to the channel to proceed.\n"
-            f"Please subscribe to the channel here: {settings.CHANNEL_SUBSCRIPTION_LINK}"
+            "⚠️ Вы подписаны на группу, но вам нужно подписаться на канал, чтобы продолжить.\n"
+            f"Пожалуйста, подпишитесь на канал здесь: {settings.CHANNEL_SUBSCRIPTION_LINK}"
         )
         keyboard = None
     elif not group_sub_check and channel_sub_check:
         response_message = (
-            "⚠️ You are subscribed to the channel, but you need to subscribe to the group to proceed.\n"
-            f"Please subscribe to the group here: {settings.GROUP_SUBSCRIPTION_LINK}"
+            "⚠️ Вы подписаны на канал, но вам нужно подписаться на группу, чтобы продолжить.\n"
+            f"Пожалуйста, подпишитесь на группу здесь: {settings.GROUP_SUBSCRIPTION_LINK}"
         )
         keyboard = None
     else:
         response_message = (
-            "❌ You are not subscribed to either the group or the channel. Please subscribe to both to proceed.\n"
-            f"Please subscribe to both the group and the channel:\n"
-            f"Group: {settings.GROUP_SUBSCRIPTION_LINK}\n"
-            f"Channel: {settings.CHANNEL_SUBSCRIPTION_LINK}"
+            "❌ Вы не подписаны ни на группу, ни на канал. Пожалуйста, подпишитесь на оба, чтобы продолжить.\n"
+            f"Пожалуйста, подпишитесь на группу и канал:\n"
+            f"Группа: {settings.GROUP_SUBSCRIPTION_LINK}\n"
+            f"Канал: {settings.CHANNEL_SUBSCRIPTION_LINK}"
         )
         keyboard = None
 

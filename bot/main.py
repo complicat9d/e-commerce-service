@@ -8,6 +8,7 @@ from aiogram.enums import ParseMode
 from bot.routes.start import start_router
 from bot.routes.product_selection import category_slider
 from bot.routes.cart import cart_router
+from bot.routes.faq import faq_router
 from config import settings
 
 log = getLogger("mitm")
@@ -22,7 +23,7 @@ def get_bot() -> Bot:
 
 async def main():
     dp = Dispatcher()
-    dp.include_routers(start_router, category_slider, cart_router)
+    dp.include_routers(start_router, category_slider, cart_router, faq_router)
 
     log.info("Starting bot...")
 

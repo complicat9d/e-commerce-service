@@ -110,7 +110,9 @@ async def delete_cart_item_handler(callback_query: CallbackQuery):
 
 
 @cart_router.callback_query(MyCallback.filter(F.action.startswith("cart_address_")))
-async def specify_cart_address(callback_query: CallbackQuery, state: FSMContext, bot: Bot):
+async def specify_cart_address(
+    callback_query: CallbackQuery, state: FSMContext, bot: Bot
+):
     user_id = callback_query.from_user.id
     product_id = int(callback_query.data.split("_")[-1])
     await state.update_data(product_id=product_id)
