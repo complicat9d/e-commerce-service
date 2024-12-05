@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     GROUP_SUBSCRIPTION_LINK: str = "https://t.me/dkgkldkgldgkdg"
     GROUP_SUBSCRIPTION_CHECK: str = "-1002494342292"  # chat_id: 2494342292
 
+    SECRET_KEY: str
+
     DEBUG_ENGINE: bool = False
 
 

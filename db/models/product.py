@@ -5,7 +5,7 @@ from db.models.category import Category
 
 
 class Product(Base):
-    __tablename__ = "product"
+    __tablename__ = "admin_panel_product"
 
     id = sa.Column(sa.Integer, primary_key=True)
     category_id = sa.Column(

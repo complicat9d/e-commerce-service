@@ -6,7 +6,7 @@ from db.models.product import Product
 
 
 class Cart(Base):
-    __tablename__ = "cart"
+    __tablename__ = "admin_panel_cart"
 
     id = sa.Column(sa.Integer, primary_key=True)
     user_id = sa.Column(sa.ForeignKey(User.id, ondelete="CASCADE"), nullable=False)

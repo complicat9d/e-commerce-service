@@ -12,6 +12,8 @@ alembic = "*"
 pydantic = "*"
 pydantic-settings = "*"
 openpyxl = "*"
+django = "*"
+psycopg = "*"
 
 [dev-packages]
 pytest = "*"

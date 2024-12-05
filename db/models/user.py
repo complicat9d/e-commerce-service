@@ -4,7 +4,7 @@ from db.models import Base
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "admin_panel_user"
 
     id = sa.Column(sa.BigInteger, primary_key=True)
     first_name = sa.Column(sa.String, nullable=False)
