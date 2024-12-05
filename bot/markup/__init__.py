@@ -81,17 +81,17 @@ def get_index_inline_keyboard() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="Каталог", callback_data=MyCallback(action="catalog").pack()
+                    text="📖 Каталог", callback_data=MyCallback(action="catalog").pack()
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="Корзина", callback_data=MyCallback(action="cart").pack()
+                    text="🛒 Корзина", callback_data=MyCallback(action="cart").pack()
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="FAQ", callback_data=MyCallback(action="faq").pack()
+                    text="🤔 FAQ", callback_data=MyCallback(action="faq").pack()
                 )
             ],
         ],
@@ -231,7 +231,6 @@ def get_cart_slider(
 ) -> InlineKeyboardMarkup:
     keyboard = []
 
-    # Add cart items to the keyboard
     start_index = page * per_page
     for i, item in enumerate(cart_items, start=1 + start_index):
         keyboard.append(
@@ -332,7 +331,6 @@ def get_faq_slider(
 ) -> InlineKeyboardMarkup:
     keyboard = []
 
-    # Add FAQ titles to the keyboard
     start_index = page * per_page
     for i, faq in enumerate(faqs, start=1 + start_index):
         keyboard.append(
@@ -344,7 +342,6 @@ def get_faq_slider(
             ]
         )
 
-    # Add pagination buttons
     slider = []
     if page > 0:
         slider.append(
@@ -365,10 +362,8 @@ def get_faq_slider(
                 text=">", callback_data=MyCallback(action=f"faq_page_{page + 1}").pack()
             )
         )
-
     keyboard.append(slider)
 
-    # Back button
     keyboard.append(
         [
             InlineKeyboardButton(
@@ -390,6 +385,19 @@ def get_back_to_faq() -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text="🔙 Назад",
                     callback_data=MyCallback(action="faq").pack(),
+                )
+            ]
+        ]
+    )
+
+
+def get_go_to_cart() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛒 Перейти в корзину",
+                    callback_data=MyCallback(action="cart").pack(),
                 )
             ]
         ]

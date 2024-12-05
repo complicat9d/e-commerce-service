@@ -1,6 +1,7 @@
+import os
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto, FSInputFile
 from aiogram.filters.state import State, StatesGroup, StateFilter
 
 
@@ -11,7 +12,7 @@ from bot.markup import (
     get_back_to_category,
     get_back_to_catalog,
     get_product_menu,
-    get_back_to_main_menu_keyboard,
+    get_go_to_cart,
 )
 from db.session import async_session
 from utils.db.category import get_all_categories, count_categories
@@ -105,6 +106,7 @@ async def handle_category_selection(
 ):
     category_id = int(callback_query.data.split("_")[-1])
     logger.info("'category_id': {}; 'page': {}".format(category_id, page))
+
     async with async_session() as session:
         products = await get_all_products_by_category(
             session, category_id, page, per_page
@@ -121,15 +123,30 @@ async def handle_category_selection(
             objects_per_page=per_page,
             category_id=category_id,
         )
+        if callback_query.message.photo:
+            await callback_query.message.delete()
+            await callback_query.message.answer(
+                text=f"Категория выбрана. Выберите продукт:",
+                reply_markup=keyboard,
+            )
+        else:
+            await callback_query.message.edit_text(
+                text=f"Категория выбрана. Выберите продукт:",
+                reply_markup=keyboard,
+            )
 
-        await callback_query.message.edit_text(
-            text=f"Категория выбрана. Выберите продукт:",
-            reply_markup=keyboard,
-        )
     else:
-        await callback_query.message.edit_text(
-            text="В этой категории нет продуктов.", reply_markup=get_back_to_catalog()
-        )
+        if callback_query.message.photo:
+            await callback_query.message.delete()
+            await callback_query.message.answer(
+                text="В этой категории нет продуктов.",
+                reply_markup=get_back_to_catalog(),
+            )
+        else:
+            await callback_query.message.edit_text(
+                text="В этой категории нет продуктов.",
+                reply_markup=get_back_to_catalog(),
+            )
 
 
 @category_slider.callback_query(MyCallback.filter(F.action.startswith("product_page_")))
@@ -179,10 +196,31 @@ async def handle_product_selection(callback_query: CallbackQuery):
         product = await get_product_by_id(session, product_id)
 
     if product:
-        await callback_query.message.edit_text(
-            text=f"Вы выбрали продукт: {product.name}\nОписание: {product.description}\nЦена: {product.cost}₽",
-            reply_markup=get_product_menu(product.category_id, product_id),
-        )
+        photo_path = os.path.join(os.getcwd(), product.photo)
+        photo_file = FSInputFile(photo_path)
+        if os.path.exists(photo_path):
+            await callback_query.message.edit_media(
+                media=InputMediaPhoto(
+                    media=photo_file,
+                    caption=(
+                        f"Вы выбрали продукт: {product.name}\n"
+                        f"Описание: {product.description}\n"
+                        f"Цена: {product.cost}₽"
+                    ),
+                    parse_mode="Markdown",
+                ),
+                reply_markup=get_product_menu(product.category_id, product_id),
+            )
+        else:
+            await callback_query.message.edit_text(
+                text=(
+                    f"Фотография не доступна для товара\n\n"
+                    f"Вы выбрали продукт: {product.name}\n"
+                    f"Описание: {product.description}\n"
+                    f"Цена: {product.cost}₽"
+                ),
+                reply_markup=get_product_menu(product.category_id, product_id),
+            )
     else:
         await callback_query.message.edit_text(
             text="Продукты недоступны.",
@@ -223,9 +261,15 @@ async def add_to_cart_handler(callback_query: CallbackQuery, state: FSMContext):
 
     await state.update_data(product_id=product_id)
 
-    message = await callback_query.message.edit_text(
-        "Введите количество товара, которое вы хотите добавить в корзину:"
-    )
+    if callback_query.message.photo:
+        await callback_query.message.delete()
+        message = await callback_query.message.answer(
+            "Введите количество товара, которое вы хотите добавить в корзину:"
+        )
+    else:
+        message = await callback_query.message.edit_text(
+            "Введите количество товара, которое вы хотите добавить в корзину:"
+        )
     await state.update_data(last_message_id=message.message_id)
     await state.set_state(CartState.waiting_for_quantity)
 
@@ -286,7 +330,7 @@ async def handle_quantity_input(message: Message, state: FSMContext, bot: Bot):
             f"Количество: {amount}, Общая стоимость: {amount * product.cost}₽. "
             "Перейдите в корзину, чтобы продолжить."
         ),
-        reply_markup=get_back_to_main_menu_keyboard(),
+        reply_markup=get_go_to_cart(),
     )
 
     await state.update_data(last_message_id=confirmation_message.message_id)

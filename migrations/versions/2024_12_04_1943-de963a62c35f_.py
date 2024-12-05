@@ -26,6 +26,20 @@ def upgrade() -> None:
     sa.Column('text', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.execute("""
+    INSERT INTO faq (title, text) 
+    VALUES
+      ('FAQ Title 1', 'This is the content of FAQ 1'),
+      ('FAQ Title 2', 'This is the content of FAQ 2'),
+      ('FAQ Title 3', 'This is the content of FAQ 3'),
+      ('FAQ Title 4', 'This is the content of FAQ 4'),
+      ('FAQ Title 5', 'This is the content of FAQ 5'),
+      ('FAQ Title 6', 'This is the content of FAQ 6'),
+      ('FAQ Title 7', 'This is the content of FAQ 7'),
+      ('FAQ Title 8', 'This is the content of FAQ 8'),
+      ('FAQ Title 9', 'This is the content of FAQ 9'),
+      ('FAQ Title 10', 'This is the content of FAQ 10')
+      """)
     # ### end Alembic commands ###
 
 

@@ -137,7 +137,6 @@ async def handle_address_input(message: Message, state: FSMContext, bot: Bot):
     product_id = user_data.get("product_id")
     last_message_id = user_data.get("last_message_id")
 
-    # Delete any previous error message if it exists
     if last_message_id:
         await bot.delete_message(chat_id=user_id, message_id=last_message_id)
 
@@ -209,7 +208,7 @@ async def got_payment(message: Message, state: FSMContext, bot: Bot):
             product_name=cart_item.product_name,
             quantity=cart_item.amount,
             price=cart_item.cost,
-            address=cart_item.address
+            address=cart_item.address,
         )
 
         await write_order_to_excel(order_data)
