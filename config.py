@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +14,8 @@ class Settings(BaseSettings):
     TOKEN: str
     BOT_NAME: str
     BOT_PAYMENT_PROVIDER_TOKEN: str
+
+    EXCEL_FILE_PATH: str = os.path.join(os.getcwd(), "data/orders.xlsx")
 
     CHANNEL_SUBSCRIPTION_LINK: str = "https://t.me/dlgmdlgkdlgkdgl"
     CHANNEL_SUBSCRIPTION_CHECK: str = "https://t.me/dlgmdlgkdlgkdgl"

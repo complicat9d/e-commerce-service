@@ -17,6 +17,7 @@ from utils.db.cart import (
     get_cart_item,
 )
 from utils.log import logger
+from utils.xl_utils import generate_order_data, write_order_to_excel
 from bot.markup import (
     MyCallback,
     get_cart_slider,
@@ -179,7 +180,7 @@ async def checkout(pre_checkout_query: PreCheckoutQuery):
     )
 
 
-@cart_router.message(F.content_type.SUCCESSFUL_PAYMENT)
+@cart_router.message(F.content_type == F.content_type.SUCCESSFUL_PAYMENT)
 async def got_payment(message: Message, state: FSMContext, bot: Bot):
     user_id = message.from_user.id
     user_data = await state.get_data()
@@ -200,6 +201,19 @@ async def got_payment(message: Message, state: FSMContext, bot: Bot):
         )
 
     async with async_session() as session:
+        cart_item = await get_cart_item(session, user_id, product_id)
+
+        order_data = generate_order_data(
+            user_id=user_id,
+            product_id=product_id,
+            product_name=cart_item.product_name,
+            quantity=cart_item.amount,
+            price=cart_item.cost,
+            address=cart_item.address
+        )
+
+        await write_order_to_excel(order_data)
+
         await update_cart(
             session,
             CartUpdateSchema(

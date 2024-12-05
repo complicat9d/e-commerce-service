@@ -11,6 +11,7 @@ greenlet = "*"
 alembic = "*"
 pydantic = "*"
 pydantic-settings = "*"
+openpyxl = "*"
 
 [dev-packages]
 pytest = "*"

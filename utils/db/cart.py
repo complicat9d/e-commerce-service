@@ -84,17 +84,18 @@ async def update_cart(session: AsyncSession, schema: CartUpdateSchema):
         data[m.Cart.is_being_delivered] = schema.is_being_delivered
     if schema.address:
         data[m.Cart.address] = schema.address
-        q = (
-            sa.update(m.Cart)
-            .values(data)
-            .where(
-                sa.and_(
-                    m.Cart.user_id == schema.user_id,
-                    m.Cart.product_id == schema.product_id,
-                )
+
+    q = (
+        sa.update(m.Cart)
+        .values(data)
+        .where(
+            sa.and_(
+                m.Cart.user_id == schema.user_id,
+                m.Cart.product_id == schema.product_id,
             )
         )
-        await session.execute(q)
+    )
+    await session.execute(q)
 
 
 async def delete_cart_item(session: AsyncSession, user_id: int, product_id: int):
