@@ -28,9 +28,13 @@ SECRET_KEY = settings.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DJANGO_SUPERUSER_EMAIL=settings.DJANGO_SUPERUSER_EMAIL
+DJANGO_SUPERUSER_PASSWORD=settings.DJANGO_SUPERUSER_PASSWORD
+
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "0.0.0.0",
 ]
 
 

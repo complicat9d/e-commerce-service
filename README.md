@@ -1,2 +1,58 @@
-# e-commerce-bot
-Bot for Browsing Products Cataloges, Managing User Shopping Cart and Processing Orders
+# Сервис с каталогом продуктов в телеграм боте и админ панелью
+
+Данный проект представляет собой бот, написанный на `aiogram`, и админ панель для редактирования сущностей, рассылок пользователям в бота и выгрузки данных в `.xlsx`, написанную на фреймворке `Django`.
+
+## Конфигурация и запуск проекта
+### Конфигурация переменных окружения
+Для корректной работы сервиса нужно создать файл `.env` в корне, скопированного проекта и инициализзировать следующие переменные из `.env-example``:
+```.env-example
+TOKEN=
+BOT_PAYMENT_PROVIDER_TOKEN=
+
+SECRET_KEY=
+DJANGO_SUPERUSER_EMAIL=
+DJANGO_SUPERUSER_PASSWORD=
+
+CHANNEL_SUBSCRIPTION_LINK=
+CHANNEL_SUBSCRIPTION_CHECK=
+GROUP_SUBSCRIPTION_LINK=
+GROUP_SUBSCRIPTION_CHECK=
+```
+`TOKEN` - токен бота, полученный в [@BotFather](https://t.me/BotFather)
+`BOT_PAYMENT_PROVIDER_TOKEN` - токен провайдера, который предоставляет доступ к платежному шлюзу
+
+При тестировании сервиса использовался тестовый терминал `Paymaster`, креды от тестовой карточки:
+```text
+Номер карты: 4100 0000 0000 0001
+MM/YY: 03/26
+CVC/CVV-код: 111
+```
+`SECRET_KEY` - SHA256 строка для шифрования пароля юзеров в базе данных
+
+_должен быть инициализирован другим значением, а не тем, что стоит по умолчанию в конфиге при разворачивании в прод_
+
+`DJANGO_SUPERUSER_EMAIL` - электронная почта суперюзера
+
+`DJANGO_SUPERUSER_PASSWORD` - пароль от админ панели для суперюзера
+
+`CHANNEL_SUBSCRIPTION_LINK` - ссылка, по которой юзер сможет перейти и подписаться на канал
+
+`CHANNEL_SUBSCRIPTION_CHECK` - ссылка на канал _(https://t.me/<bot_username>)_, `chat_id`, внутренний айди канала 
+
+`GROUP_SUBSCRIPTION_LINK` - ссылка, по которой юзер сможет вступить в группу
+
+`GROUP_SUBSCRIPTION_CHECK` - ссылка на группу _(https://t.me/<bot_username>)_, `chat_id`, внутренний айди группы 
+
+_`Внутренний айди` - его можно найти в веб версии телеграма в поисковой строке самым последним аргументов (выглядит вот так `-1002494342292`) или использовать напрямую API телеграма с клиентом в виде личного аккаунта_
+
+### Запуск проекта
+_Пререквизит: наличие `docker compose`_
+
+В корне проекта прорпишите следующую команду:
+```commandline
+docker compose up --build
+```
+Для запуска без логов:
+```commandline
+docker compose up --build -d 
+```

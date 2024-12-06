@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     DATABASE_DB: str = "postgres"
 
     TOKEN: str
-    BOT_NAME: str
     BOT_PAYMENT_PROVIDER_TOKEN: str
 
     EXCEL_FILE_PATH: str = os.path.join(os.getcwd(), "data/orders.xlsx")
@@ -23,6 +22,8 @@ class Settings(BaseSettings):
     GROUP_SUBSCRIPTION_CHECK: str = "-1002494342292"  # chat_id: 2494342292
 
     SECRET_KEY: str
+    DJANGO_SUPERUSER_PASSWORD: str
+    DJANGO_SUPERUSER_EMAIL: str
 
     DEBUG_ENGINE: bool = False
 

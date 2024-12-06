@@ -165,3 +165,6 @@ orders.xlsx
 *.jpeg
 *.png
 *.jpg
+
+postgresql.conf
+postgres_db

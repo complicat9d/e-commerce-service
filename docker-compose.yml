@@ -9,6 +9,8 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - ./data:/data
     networks:
       - app-network
 
@@ -20,27 +22,51 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ./postgres_db:/var/lib/postgresql/data
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     command:
       - "postgres"
       - "-c"
       - "max_connections=1000"
+    ports:
+      - "5432:5432"
     networks:
       - app-network
 
-  alembic:
+  admin-panel:
     build:
       context: .
       dockerfile: Dockerfile
-    command: alembic upgrade head
-    env_file:
-      - .env
+    command: |
+      bash -c "python3 admin_panel/manage.py migrate &&
+               python3 admin_panel/manage.py createsuperuser --noinput --username admin --email ${DJANGO_SUPERUSER_EMAIL}"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 
+  run-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 admin_panel/manage.py runserver 0.0.0.0:8000
+    restart: always
+    volumes:
+      - ./media/photo:/admin_panel/media/photo
+      - ./media/mailings:/admin_panel/mailings/mailings
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
 networks:
   app-network:
