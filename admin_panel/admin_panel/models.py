@@ -14,11 +14,12 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
 
 
+# TODO: resolve problem with file  upload/depiction in admin panel
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    photo = models.CharField(max_length=255, null=True)
+    photo = models.ImageField(upload_to="photo/", null=True, blank=True)
     description = models.TextField()
     cost = models.FloatField()
     amount = models.IntegerField(default=0)

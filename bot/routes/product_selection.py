@@ -196,7 +196,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
         product = await get_product_by_id(session, product_id)
 
     if product:
-        photo_path = os.path.join(os.getcwd(), product.photo)
+        photo_path = os.path.join(os.getcwd(), "admin_panel/media", product.photo)
         photo_file = FSInputFile(photo_path)
         if os.path.exists(photo_path):
             await callback_query.message.edit_media(

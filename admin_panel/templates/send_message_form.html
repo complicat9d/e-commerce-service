@@ -1,0 +1,20 @@
+<!-- templates/send_message_form.html -->
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Send Message to Users</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Selected Users</h3>
+    <ul>
+      {% for user in users %}
+        <li>{{ user.first_name }} {{ user.last_name }}</li>
+      {% endfor %}
+    </ul>
+
+    <button type="submit">Send</button>
+  </form>
+{% endblock %}

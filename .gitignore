@@ -163,3 +163,5 @@ cython_debug/
 
 orders.xlsx
 *.jpeg
+*.png
+*.jpg
