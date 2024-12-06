@@ -16,10 +16,10 @@ class Settings(BaseSettings):
 
     EXCEL_FILE_PATH: str = os.path.join(os.getcwd(), "data/orders.xlsx")
 
-    CHANNEL_SUBSCRIPTION_LINK: str = "https://t.me/dlgmdlgkdlgkdgl"
-    CHANNEL_SUBSCRIPTION_CHECK: str = "https://t.me/dlgmdlgkdlgkdgl"
-    GROUP_SUBSCRIPTION_LINK: str = "https://t.me/dkgkldkgldgkdg"
-    GROUP_SUBSCRIPTION_CHECK: str = "-1002494342292"  # chat_id: 2494342292
+    CHANNEL_SUBSCRIPTION_LINK: str
+    CHANNEL_SUBSCRIPTION_CHECK: str
+    GROUP_SUBSCRIPTION_LINK: str
+    GROUP_SUBSCRIPTION_CHECK: str
 
     SECRET_KEY: str = "django-insecure-%)78vsoln&u5-#5sj8=8c%-dpo)yco-!g=bxm5j(_08afhf#m1"
     DJANGO_SUPERUSER_PASSWORD: str
