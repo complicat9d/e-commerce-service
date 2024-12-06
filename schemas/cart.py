@@ -22,7 +22,6 @@ class CartCreateSchema(CartBaseSchema):
 
 
 class CartUpdateSchema(BaseModel):
-    user_id: int
-    product_id: int
+    id: int
     address: Optional[str] = None
     is_being_delivered: Optional[bool] = None

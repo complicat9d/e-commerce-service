@@ -5,7 +5,7 @@ from db.session import async_session
 from bot.markup import (
     MyCallback,
     get_faq_slider,
-    get_back_to_main_menu_keyboard,
+    get_back_to_main_menu,
     get_back_to_faq,
 )
 from utils.db.faq import get_all_faqs, count_faqs, get_faq_by_id
@@ -25,7 +25,7 @@ async def faq_main_menu_handler(
     if not faqs:
         await callback_query.message.edit_text(
             "Нет доступных часто задаваемых вопросов.",
-            reply_markup=get_back_to_main_menu_keyboard(),
+            reply_markup=get_back_to_main_menu(),
         )
         return
 

@@ -8,13 +8,18 @@ class User(models.Model):
     username = models.CharField(max_length=255, null=True)
     lang = models.CharField(max_length=2, default="en")
 
+    def __str__(self):
+        return self.username if self.username else str(self.id)
+
 
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
 
-# TODO: resolve problem with file  upload/depiction in admin panel
+
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
     category = models.ForeignKey("Category", on_delete=models.CASCADE)
@@ -23,6 +28,9 @@ class Product(models.Model):
     description = models.TextField()
     cost = models.FloatField()
     amount = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.name} ({self.category.name})"
 
 
 class Cart(models.Model):
@@ -35,8 +43,14 @@ class Cart(models.Model):
     address = models.CharField(max_length=255, null=True)
     is_being_delivered = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Cart of {self.user.username} - {self.product_name} x{self.amount}"
+
 
 class FAQ(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
     text = models.TextField()
+
+    def __str__(self):
+        return self.title

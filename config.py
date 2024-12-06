@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     GROUP_SUBSCRIPTION_LINK: str = "https://t.me/dkgkldkgldgkdg"
     GROUP_SUBSCRIPTION_CHECK: str = "-1002494342292"  # chat_id: 2494342292
 
-    SECRET_KEY: str
+    SECRET_KEY: str = "django-insecure-%)78vsoln&u5-#5sj8=8c%-dpo)yco-!g=bxm5j(_08afhf#m1"
     DJANGO_SUPERUSER_PASSWORD: str
     DJANGO_SUPERUSER_EMAIL: str
 

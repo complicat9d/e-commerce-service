@@ -12,7 +12,7 @@ class MyCallback(CallbackData, prefix="action"):
     action: str
 
 
-def get_back_to_main_menu_keyboard() -> InlineKeyboardMarkup:
+def get_back_to_main_menu() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -237,9 +237,7 @@ def get_cart_slider(
             [
                 InlineKeyboardButton(
                     text=f"{i}. {item.product_name} - {item.amount} шт. цена: {item.cost}",
-                    callback_data=MyCallback(
-                        action=f"cart_item_{item.product_id}"
-                    ).pack(),
+                    callback_data=MyCallback(action=f"cart_item_{item.id}").pack(),
                 )
             ]
         )

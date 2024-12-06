@@ -13,6 +13,7 @@ from bot.markup import (
     get_back_to_catalog,
     get_product_menu,
     get_go_to_cart,
+    get_back_to_main_menu,
 )
 from db.session import async_session
 from utils.db.category import get_all_categories, count_categories
@@ -50,7 +51,7 @@ async def catalog_slider_handler(
     )
     if not categories:
         await callback_query.message.edit_text(
-            text="Категории не найдены.", reply_markup=get_back_to_catalog()
+            text="Категории не найдены.", reply_markup=get_back_to_main_menu()
         )
         return
 
@@ -196,21 +197,31 @@ async def handle_product_selection(callback_query: CallbackQuery):
         product = await get_product_by_id(session, product_id)
 
     if product:
-        photo_path = os.path.join(os.getcwd(), "admin_panel/media", product.photo)
-        photo_file = FSInputFile(photo_path)
-        if os.path.exists(photo_path):
-            await callback_query.message.edit_media(
-                media=InputMediaPhoto(
-                    media=photo_file,
-                    caption=(
+        if product.photo is not None:
+            photo_path = os.path.join(os.getcwd(), "admin_panel/media", product.photo)
+            if os.path.exists(photo_path) and os.path.isfile(photo_path):
+                await callback_query.message.edit_media(
+                    media=InputMediaPhoto(
+                        media=FSInputFile(photo_path),
+                        caption=(
+                            f"Вы выбрали продукт: {product.name}\n"
+                            f"Описание: {product.description}\n"
+                            f"Цена: {product.cost}₽"
+                        ),
+                        parse_mode="Markdown",
+                    ),
+                    reply_markup=get_product_menu(product.category_id, product_id),
+                )
+            else:
+                await callback_query.message.edit_text(
+                    text=(
+                        f"Фотография не доступна для товара\n\n"
                         f"Вы выбрали продукт: {product.name}\n"
                         f"Описание: {product.description}\n"
                         f"Цена: {product.cost}₽"
                     ),
-                    parse_mode="Markdown",
-                ),
-                reply_markup=get_product_menu(product.category_id, product_id),
-            )
+                    reply_markup=get_product_menu(product.category_id, product_id),
+                )
         else:
             await callback_query.message.edit_text(
                 text=(

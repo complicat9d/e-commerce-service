@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.contrib import admin
 from django.shortcuts import render, redirect
 from django.core.files.storage import default_storage
-from django.utils.safestring import mark_safe
 from django.http import HttpResponse
 from openpyxl import Workbook
 from typing import Optional
@@ -15,6 +14,7 @@ from django.urls import path
 from .models import User, Product, Cart, Category, FAQ
 from bot.main import get_bot
 from utils.tl_utils import send_message_to_telegram
+from utils.xl_utils import generate_order_data
 from config import settings
 
 
@@ -28,6 +28,8 @@ class SendMessageForm(forms.Form):
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ("id", "first_name", "last_name", "username", "lang")
+    list_filter = ("lang",)
+    search_fields = ("username", "email", "first_name", "last_name")
     list_per_page = 50
     actions = ["send_message_to_users"]
 
@@ -63,7 +65,6 @@ class UserAdmin(admin.ModelAdmin):
 
             logger.info(f"Selected users: {users}, Text: {text}, Photo: {photo}")
 
-            photo_path = None
             if photo:
                 photo_path = default_storage.save("mailings/" + photo.name, photo)
                 logger.info(f"Photo uploaded and saved at: {photo_path}")
@@ -74,11 +75,8 @@ class UserAdmin(admin.ModelAdmin):
             for user in users:
                 async_to_sync(self.send_message_to_telegram)(user, text, photo_path)
 
-            # After sending the messages, notify and redirect
             self.message_user(request, "Messages sent successfully!")
-            return redirect(
-                "admin:admin_panel_user_changelist"
-            )  # Adjust this as necessary
+            return redirect("admin:admin_panel_user_changelist")
 
         return render(request, "send_message_form.html", {"form": form, "users": users})
 
@@ -91,35 +89,49 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class CartAdmin(admin.ModelAdmin):
-    actions = ["download_excel"]
+    list_display = (
+        "id",
+        "user",
+        "product",
+        "product_name",
+        "amount",
+        "cost",
+        "is_being_delivered",
+        "address",
+    )
+    list_filter = ("is_being_delivered", "user", "product__category")
+    search_fields = ("user__username", "product__name", "address")
+    actions = ["download_excel", "mark_as_delivered"]
 
     def download_excel(self, request, queryset) -> Optional[HttpResponse]:
         if not os.path.exists(settings.EXCEL_FILE_PATH):
+            self.message_user(request, "There is no excel file so far")
             wb = Workbook()
             ws = wb.active
-            ws.title = "Cart"
+            ws.title = "Orders"
 
             headers = [
-                "ID",
-                "User",
+                "Order ID",
+                "User ID",
+                "Product ID",
                 "Product Name",
-                "Amount",
-                "Cost",
+                "Quantity",
+                "Price",
                 "Address",
-                "Is Being Delivered",
+                "Payment Status",
+                "Timestamp",
             ]
             ws.append(headers)
-
             for cart_item in queryset:
-                row = [
+                row = generate_order_data(
                     cart_item.id,
-                    cart_item.user.username if cart_item.user else "Unknown",
+                    cart_item.product_id,
                     cart_item.product_name,
                     cart_item.amount,
                     cart_item.cost,
-                    cart_item.address or "Not provided",
-                    "Yes" if cart_item.is_being_delivered else "No",
-                ]
+                    cart_item.address,
+                )
+
                 ws.append(row)
 
             os.makedirs(os.path.dirname(settings.EXCEL_FILE_PATH), exist_ok=True)
@@ -140,25 +152,37 @@ class CartAdmin(admin.ModelAdmin):
             )
             return response
 
+    def mark_as_delivered(self, request, queryset):
+        updated_count = queryset.update(is_being_delivered=True)
+        self.message_user(request, f"{updated_count} carts marked as delivered.")
+
+    mark_as_delivered.short_description = "Mark selected carts as delivered"
+
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'cost', 'amount', 'image_preview')
-    list_filter = ("category",)
+    list_display = ("name", "category", "cost", "amount", "photo")
+    list_filter = ("category", "amount")
+    search_fields = ("name", "category__name")
+    ordering = ("cost",)
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)
     search_fields = ("name",)
+    ordering = ("name",)
 
-    def image_preview(self, obj):
-        if obj.photo:
-            return mark_safe(f'<img src="{obj.photo.url}" width="50" height="50" />')
-        return 'No image'
 
-    image_preview.short_description = 'Image Preview'
+class FAQAdmin(admin.ModelAdmin):
+    list_display = ("title", "text")
+    search_fields = ("title", "text")
+    ordering = ("title",)
 
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Cart, CartAdmin)
-admin.site.register(Category)
-admin.site.register(FAQ)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(FAQ, FAQAdmin)
 
 admin.site.site_header = "Admin panel"
 admin.site.site_title = "Admin panel"

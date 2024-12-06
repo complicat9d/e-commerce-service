@@ -10,7 +10,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:/data
+      - ./data:/app/data
+      - ./media/photo:/app/admin_panel/media/photo
+      - ./media/mailings:/app/admin_panel/media/mailings
     networks:
       - app-network
 
@@ -44,7 +46,7 @@ services:
       dockerfile: Dockerfile
     command: |
       bash -c "python3 admin_panel/manage.py migrate &&
-               python3 admin_panel/manage.py createsuperuser --noinput --username admin --email ${DJANGO_SUPERUSER_EMAIL}"
+               python3 admin_panel/manage.py create_superuser_command"
     depends_on:
       db:
         condition: service_healthy
@@ -58,8 +60,9 @@ services:
     command: python3 admin_panel/manage.py runserver 0.0.0.0:8000
     restart: always
     volumes:
-      - ./media/photo:/admin_panel/media/photo
-      - ./media/mailings:/admin_panel/mailings/mailings
+      - ./data:/app/data
+      - ./media/photo:/app/admin_panel/media/photo
+      - ./media/mailings:/app/admin_panel/media/mailings
     ports:
       - "8000:8000"
     depends_on:
