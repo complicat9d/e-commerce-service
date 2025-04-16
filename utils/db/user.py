@@ -40,13 +40,13 @@ async def create_or_update_user(
             lang=lang,
         )
         .on_conflict_do_update(
-            index_elements=['id'],
+            index_elements=["id"],
             set_={
                 m.User.first_name: first_name,
                 m.User.last_name: last_name,
                 m.User.username: username,
                 m.User.lang: lang,
-            }
+            },
         )
     )
     await session.execute(stmt)
