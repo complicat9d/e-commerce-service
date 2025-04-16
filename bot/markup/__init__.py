@@ -171,7 +171,7 @@ def get_product_slider(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=f"{i}. {product.name} - {product.cost}₽",
+                    text=f"{i}. {product.name} - {product.cost}",
                     callback_data=MyCallback(action=f"product_{product.id}").pack(),
                 )
             ]

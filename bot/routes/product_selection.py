@@ -206,7 +206,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
                         caption=(
                             f"Вы выбрали продукт: {product.name}\n"
                             f"Описание: {product.description}\n"
-                            f"Цена: {product.cost}₽"
+                            f"Цена: {product.cost}"
                         ),
                         parse_mode="Markdown",
                     ),
@@ -218,7 +218,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
                         f"Фотография не доступна для товара\n\n"
                         f"Вы выбрали продукт: {product.name}\n"
                         f"Описание: {product.description}\n"
-                        f"Цена: {product.cost}₽"
+                        f"Цена: {product.cost}"
                     ),
                     reply_markup=get_product_menu(product.category_id, product_id),
                 )
@@ -228,7 +228,7 @@ async def handle_product_selection(callback_query: CallbackQuery):
                     f"Фотография не доступна для товара\n\n"
                     f"Вы выбрали продукт: {product.name}\n"
                     f"Описание: {product.description}\n"
-                    f"Цена: {product.cost}₽"
+                    f"Цена: {product.cost}"
                 ),
                 reply_markup=get_product_menu(product.category_id, product_id),
             )
@@ -338,7 +338,7 @@ async def handle_quantity_input(message: Message, state: FSMContext, bot: Bot):
         chat_id=user_id,
         text=(
             f"Товар '{product.name}' добавлен в вашу корзину. "
-            f"Количество: {amount}, Общая стоимость: {amount * product.cost}₽. "
+            f"Количество: {amount}, Общая стоимость: {amount * product.cost}. "
             "Перейдите в корзину, чтобы продолжить."
         ),
         reply_markup=get_go_to_cart(),
