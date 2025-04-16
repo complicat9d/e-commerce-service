@@ -30,26 +30,23 @@ async def create_or_update_user(
     last_name: str = None,
     username: str = None,
 ):
-    q = sa.select(m.User.id).where(m.User.id == chat_id)
-    exists = (await session.execute(q)).scalar()
-    if not exists:
-        q = sa.insert(m.User).values(
-            {
-                m.User.id: chat_id,
+    stmt = (
+        sa.dialects.postgresql.insert(m.User)
+        .values(
+            id=chat_id,
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            lang=lang,
+        )
+        .on_conflict_do_update(
+            index_elements=['id'],
+            set_={
                 m.User.first_name: first_name,
                 m.User.last_name: last_name,
                 m.User.username: username,
                 m.User.lang: lang,
             }
         )
-    else:
-        q = sa.update(m.User).values(
-            {
-                m.User.id: chat_id,
-                m.User.first_name: first_name,
-                m.User.last_name: last_name,
-                m.User.username: username,
-                m.User.lang: lang,
-            }
-        )
-    await session.execute(q)
+    )
+    await session.execute(stmt)
