@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.shortcuts import render, redirect
 from django.core.files.storage import default_storage
 from django.http import HttpResponse
+from django.utils.html import format_html
 from openpyxl import Workbook
 from typing import Optional
 from asgiref.sync import async_to_sync
@@ -160,10 +161,20 @@ class CartAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "cost", "amount", "photo")
+    list_display = ("name", "category", "cost", "amount", "display_photo")
     list_filter = ("category", "amount")
     search_fields = ("name", "category__name")
     ordering = ("cost",)
+
+    def display_photo(self, obj):
+        if obj.photo:
+            return format_html(
+                '<img src="{}" style="max-height: 200px; max-width: 200px;" />',
+                obj.photo.url
+            )
+        return "-"
+
+    display_photo.short_description = 'Photo'
 
 
 class CategoryAdmin(admin.ModelAdmin):

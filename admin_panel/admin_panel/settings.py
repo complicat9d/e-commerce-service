@@ -1,10 +1,10 @@
 import os
-from pathlib import Path
 
 from config import settings
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.join(os.getcwd(), "admin_panel")
+
 
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = True
